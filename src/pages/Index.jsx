@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Thead, Tbody, Tr, Th, Td, Input, Button, VStack } from "@chakra-ui/react";
+import { Container, Table, Thead, Tbody, Tr, Th, Td, Input, Button, VStack, Select } from "@chakra-ui/react";
 import { FaEnvelope } from 'react-icons/fa';
 
 const Index = () => {
@@ -74,12 +74,28 @@ const Index = () => {
               <Tr key={rowIndex}>
                 {Object.keys(row).map((field, fieldIndex) => (
                   <Td key={fieldIndex}>
-                    <Input
-                      size="sm"
-                      value={data[rowIndex][field]}
-                      onChange={(e) => handleInputChange(e, rowIndex, field)}
-                      maxLength={15}
-                    />
+                    {field === 'sex' ? (
+                      <Select
+                        size="sm"
+                        value={data[rowIndex][field]}
+                        onChange={(e) => handleInputChange(e, rowIndex, field)}
+                      >
+                        <option value="">Select Sex</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Bi Sexual">Bi Sexual</option>
+                        <option value="Homo">Homo</option>
+                        <option value="Lesbian">Lesbian</option>
+                        <option value="Transgender">Transgender</option>
+                      </Select>
+                    ) : (
+                      <Input
+                        size="sm"
+                        value={data[rowIndex][field]}
+                        onChange={(e) => handleInputChange(e, rowIndex, field)}
+                        maxLength={15}
+                      />
+                    )}
                   </Td>
                 ))}
               </Tr>
