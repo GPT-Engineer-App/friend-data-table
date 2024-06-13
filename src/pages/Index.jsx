@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Thead, Tbody, Tr, Th, Td, Input, Button, VStack } from "@chakra-ui/react";
-import { EmailIcon } from 'react-icons/fa';
+import { FaEnvelope } from 'react-icons/fa';
 
 const Index = () => {
   const [rows, setRows] = useState([createEmptyRow()]);
@@ -87,7 +87,7 @@ const Index = () => {
           </Tbody>
         </Table>
         <Button onClick={addRow}>Add Row</Button>
-        <Button leftIcon={<EmailIcon />} onClick={sendReport}>Send Report</Button>
+        <Button leftIcon={<FaEnvelope />} onClick={sendReport}>Send Report</Button>
       </VStack>
     </Container>
   );
