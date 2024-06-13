@@ -54,14 +54,17 @@ const Index = () => {
   }
 
   const copyToClipboard = () => {
-    if (formRef.current) {
-      const range = document.createRange();
-      range.selectNode(formRef.current);
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-      document.execCommand('copy');
-      window.getSelection().removeAllRanges();
-      alert('Form HTML copied to clipboard!');
+    try {
+      if (formRef.current) {
+        const formHTML = formRef.current.outerHTML;
+        navigator.clipboard.writeText(formHTML).then(() => {
+          alert('Form HTML copied to clipboard!');
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      }
+    } catch (error) {
+      console.error('Error copying form HTML: ', error);
     }
   };
 
@@ -119,7 +122,7 @@ const Index = () => {
           <Button onClick={addRow}>Add Row</Button>
           <Button leftIcon={<FaEnvelope />} onClick={sendReport}>Send Report</Button>
         </div>
-        <Button leftIcon={<FaCopy />} onClick={copyToClipboard}>Copy Code</Button>
+        <Button leftIcon={<FaCopy />} onClick={copyToClipboard}>Copy Form Code</Button>
       </VStack>
     </Container>
   );
