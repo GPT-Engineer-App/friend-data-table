@@ -1,12 +1,151 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>friend-data-table</title>
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chakra-ui/1.6.5/chakra-ui.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/6.20.1/react-router-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.15/framer-motion.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chakra-ui/2.8.2/chakra-ui.min.js"></script>
+</head>
+<body>
     <div id="root"></div>
-    <script src="/src/main.jsx" type="module"></script>
-    <script src="/.gpt_engineer_internals/report-url-change.js" type="module"></script>
-  </body>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { Container, Table, Thead, Tbody, Tr, Th, Td, Input, Button, VStack, Select } = window['@chakra-ui/react'];
+        const { FaEnvelope, FaCopy } = window['react-icons/fa'];
+
+        const Index = () => {
+          const [rows, setRows] = useState([createEmptyRow()]);
+          const [data, setData] = useState(loadDataFromCookies());
+          const formRef = useRef(null);
+
+          useEffect(() => {
+            saveDataToCookies(data);
+          }, [data]);
+
+          function createEmptyRow() {
+            return {
+              name: '',
+              sex: '',
+              phone: '',
+              street: '',
+              city: '',
+              country: '',
+              zip: '',
+              email: '',
+              years: ''
+            };
+          }
+
+          function loadDataFromCookies() {
+            const cookies = document.cookie.split('; ');
+            const dataCookie = cookies.find(cookie => cookie.startsWith('friendsData='));
+            return dataCookie ? JSON.parse(decodeURIComponent(dataCookie.split('=')[1])) : [createEmptyRow()];
+          }
+
+          function saveDataToCookies(data) {
+            document.cookie = `friendsData=${encodeURIComponent(JSON.stringify(data))}; path=/; max-age=31536000`;
+          }
+
+          function handleInputChange(e, rowIndex, field) {
+            const newData = [...data];
+            newData[rowIndex][field] = e.target.value;
+            setData(newData);
+          }
+
+          function addRow() {
+            setRows([...rows, createEmptyRow()]);
+            setData([...data, createEmptyRow()]);
+          }
+
+          function sendReport() {
+            const email = "ohad_gross@hotmail.com";
+            const subject = `Names Report - ${new Date().toLocaleString()}`;
+            const body = data.map(row => Object.values(row).join(', ')).join('\n');
+            window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          }
+
+          const copyToClipboard = () => {
+            try {
+              if (formRef.current) {
+                const formHTML = formRef.current.outerHTML;
+                navigator.clipboard.writeText(formHTML).then(() => {
+                  alert('Form HTML copied to clipboard!');
+                }).catch(err => {
+                  console.error('Failed to copy: ', err);
+                });
+              }
+            } catch (error) {
+              console.error('Error copying form HTML: ', error);
+            }
+          };
+
+          return (
+            <Container centerContent maxW="container.md" py={10}>
+              <VStack spacing={4} width="100%">
+                <div ref={formRef}>
+                  <Table variant="simple" size="sm">
+                    <Thead>
+                      <Tr>
+                        <Th textAlign="center">Friend's Name</Th>
+                        <Th textAlign="center">Sex</Th>
+                        <Th textAlign="center">Phone Number</Th>
+                        <Th textAlign="center">Street Name</Th>
+                        <Th textAlign="center">City</Th>
+                        <Th textAlign="center">Country</Th>
+                        <Th textAlign="center">Zip Code</Th>
+                        <Th textAlign="center">Email</Th>
+                        <Th textAlign="center">Years of Friendship</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {rows.map((row, rowIndex) => (
+                        <Tr key={rowIndex}>
+                          {Object.keys(row).map((field, fieldIndex) => (
+                            <Td key={fieldIndex}>
+                              {field === 'sex' ? (
+                                <Select
+                                  size="sm"
+                                  value={data[rowIndex][field]}
+                                  onChange={(e) => handleInputChange(e, rowIndex, field)}
+                                >
+                                  <option value="">Select Sex</option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Bi Sexual">Bi Sexual</option>
+                                  <option value="Homo">Homo</option>
+                                  <option value="Lesbian">Lesbian</option>
+                                  <option value="Transgender">Transgender</option>
+                                </Select>
+                              ) : (
+                                <Input
+                                  size="sm"
+                                  value={data[rowIndex][field]}
+                                  onChange={(e) => handleInputChange(e, rowIndex, field)}
+                                  maxLength={15}
+                                />
+                              )}
+                            </Td>
+                          ))}
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                  <Button onClick={addRow}>Add Row</Button>
+                  <Button leftIcon={<FaEnvelope />} onClick={sendReport}>Send Report</Button>
+                </div>
+                <Button leftIcon={<FaCopy />} onClick={copyToClipboard}>Copy Form Code</Button>
+              </VStack>
+            </Container>
+          );
+        };
+
+        ReactDOM.render(<Index />, document.getElementById('root'));
+    </script>
+</body>
 </html>
