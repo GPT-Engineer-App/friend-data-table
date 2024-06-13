@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Table, Thead, Tbody, Tr, Th, Td, Input, Button, VStack, Select } from "@chakra-ui/react";
-import { FaEnvelope } from 'react-icons/fa';
+import { FaEnvelope, FaCopy } from 'react-icons/fa';
 
 const Index = () => {
   const [rows, setRows] = useState([createEmptyRow()]);
   const [data, setData] = useState(loadDataFromCookies());
+  const formRef = useRef(null);
 
   useEffect(() => {
     saveDataToCookies(data);
@@ -52,58 +53,73 @@ const Index = () => {
     window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
+  const copyToClipboard = () => {
+    if (formRef.current) {
+      const range = document.createRange();
+      range.selectNode(formRef.current);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      alert('Form HTML copied to clipboard!');
+    }
+  };
+
   return (
     <Container centerContent maxW="container.md" py={10}>
       <VStack spacing={4} width="100%">
-        <Table variant="simple" size="sm">
-          <Thead>
-            <Tr>
-              <Th textAlign="center">Friend's Name</Th>
-              <Th textAlign="center">Sex</Th>
-              <Th textAlign="center">Phone Number</Th>
-              <Th textAlign="center">Street Name</Th>
-              <Th textAlign="center">City</Th>
-              <Th textAlign="center">Country</Th>
-              <Th textAlign="center">Zip Code</Th>
-              <Th textAlign="center">Email</Th>
-              <Th textAlign="center">Years of Friendship</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {rows.map((row, rowIndex) => (
-              <Tr key={rowIndex}>
-                {Object.keys(row).map((field, fieldIndex) => (
-                  <Td key={fieldIndex}>
-                    {field === 'sex' ? (
-                      <Select
-                        size="sm"
-                        value={data[rowIndex][field]}
-                        onChange={(e) => handleInputChange(e, rowIndex, field)}
-                      >
-                        <option value="">Select Sex</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Bi Sexual">Bi Sexual</option>
-                        <option value="Homo">Homo</option>
-                        <option value="Lesbian">Lesbian</option>
-                        <option value="Transgender">Transgender</option>
-                      </Select>
-                    ) : (
-                      <Input
-                        size="sm"
-                        value={data[rowIndex][field]}
-                        onChange={(e) => handleInputChange(e, rowIndex, field)}
-                        maxLength={15}
-                      />
-                    )}
-                  </Td>
-                ))}
+        <div ref={formRef}>
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th textAlign="center">Friend's Name</Th>
+                <Th textAlign="center">Sex</Th>
+                <Th textAlign="center">Phone Number</Th>
+                <Th textAlign="center">Street Name</Th>
+                <Th textAlign="center">City</Th>
+                <Th textAlign="center">Country</Th>
+                <Th textAlign="center">Zip Code</Th>
+                <Th textAlign="center">Email</Th>
+                <Th textAlign="center">Years of Friendship</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-        <Button onClick={addRow}>Add Row</Button>
-        <Button leftIcon={<FaEnvelope />} onClick={sendReport}>Send Report</Button>
+            </Thead>
+            <Tbody>
+              {rows.map((row, rowIndex) => (
+                <Tr key={rowIndex}>
+                  {Object.keys(row).map((field, fieldIndex) => (
+                    <Td key={fieldIndex}>
+                      {field === 'sex' ? (
+                        <Select
+                          size="sm"
+                          value={data[rowIndex][field]}
+                          onChange={(e) => handleInputChange(e, rowIndex, field)}
+                        >
+                          <option value="">Select Sex</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Bi Sexual">Bi Sexual</option>
+                          <option value="Homo">Homo</option>
+                          <option value="Lesbian">Lesbian</option>
+                          <option value="Transgender">Transgender</option>
+                        </Select>
+                      ) : (
+                        <Input
+                          size="sm"
+                          value={data[rowIndex][field]}
+                          onChange={(e) => handleInputChange(e, rowIndex, field)}
+                          maxLength={15}
+                        />
+                      )}
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+          <Button onClick={addRow}>Add Row</Button>
+          <Button leftIcon={<FaEnvelope />} onClick={sendReport}>Send Report</Button>
+        </div>
+        <Button leftIcon={<FaCopy />} onClick={copyToClipboard}>Copy Code</Button>
       </VStack>
     </Container>
   );
